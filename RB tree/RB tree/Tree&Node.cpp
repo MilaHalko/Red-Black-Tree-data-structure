@@ -1,22 +1,62 @@
 #include "Tree&Node.hpp"
 
+//SEARCH~~~~~~~~~~~~~~~~~~~~~~~~
+void RBTree::search(int key) {
+    
+}
+
+//GENERATING~~~~~~~~~~~~~~~~~~~~
+void RBTree::generateDB(int size) {
+    srand(time(0));
+    for (int i = 0; i < size; i++) {
+        string data;
+        int letterNum = rand() % 10;
+        for (int j = 0; j < letterNum; j++) {
+            char ch = 'a' + rand() % 26;
+            data.push_back(ch);
+        }
+        insert(i+1, data);
+    }
+}
+
+
 //INSERT~~~~~~~~~~~~~~~~~~~~~~~~
-void RBTree::insert(int key, string data = "") {
+void RBTree::insert(int key, string data) {
     // CASE_1: first node - root (BLACK)
-    if (!root) {root = new Node(key, data, nullptr, BLACK);}
+    if (!root) {
+        root = new Node(key, data, nullptr, BLACK);
+        ofstream fout(FILE_BD);
+        fout << key << ":" << data << endl;
+        fout.close();
+    }
     else {
         Node* node = root;
         Node* p = nullptr;   // parent
+        bool alreadyExists = false;
         
         while (node) {
             p = node;
-            key < node->key ? node = node->left : node = node->right;
+            if (key < node->key) {
+                node = node->left;
+            } else {
+                if (key == node->key) {
+                    alreadyExists = true;
+                    break;
+                }
+                else node = node->right;
+            }
         }
-        
-        node = new Node(key, data, p);
-        p->key > key ? p->left = node : p->right = node;
-        isLeft(node) ? p->left = node : p->right = node;
-        checkTree(node);
+        if (alreadyExists) {cout << "Key already exists!\n\n";}
+        else {
+            node = new Node(key, data, p);
+            p->key > key ? p->left = node : p->right = node;
+            isLeft(node) ? p->left = node : p->right = node;
+            checkTree(node);
+            
+            ofstream fout(FILE_BD, ios::app);
+            fout << key << ":" << data << endl;
+            fout.close();
+        }
     }
 }
 
@@ -76,31 +116,39 @@ void RBTree::deleteNode(int key) {
                 while (cur->right) {cur = cur->right;}
                 rebaseNodes(node, cur);
             }
-            
             delete_case1(node);
             
             Node* c = nullptr;    // child
             if (node->left) {c = node->left;}
             else if (node->right) {c = node->right;}
-            
             isLeft(node) ? node->parent->left = c : node->parent->right = c;
             if(c) {c->parent = node->parent;}
             
-            cout << "KEY IS FOUND, DATA: '" << node->data <<
-                    "' HAS BEEN DELETED" << endl;
+            cout << "KEY IS FOUND, DATA: '" << node->data << "' HAS BEEN DELETED" << endl;
             delete node;
             deleted = true;
+            
+            vector<string> newFile;
+            newFile.resize(0);
+            ifstream fin (FILE_BD);
+            while (!fin.eof()) {
+                string str;
+                getline(fin, str);
+                if (!str.empty()) {
+                    int k = stoi(str.substr(0, str.find(":")));
+                    if (key != k) {newFile.push_back(str);}
+                }
+            }
+            fin.close();
+            ofstream fout (FILE_BD);
+            for (int i = 0; i < newFile.size(); i++) {fout << newFile[i] << "\n";}
+            fout.close();
             break;
         }
         node = (node->key > key) ? (node->left) : (node->right);
     }
     
-    if (!deleted) {
-        cout << "THERE ARE NO DATA, TRY ANOTHER KEY " <<
-                "(write letters to stop): ";
-        cin >> key;
-        deleteNode(key);
-    }
+    if (!deleted) {cout << "THERE ARE NO DATA\n\n";}
 }
 
 void RBTree::delete_case1(Node* node) {

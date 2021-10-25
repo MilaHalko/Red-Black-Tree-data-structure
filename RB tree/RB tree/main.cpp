@@ -1,8 +1,10 @@
 #include "Tree&Node.hpp"
+void readFile(RBTree);
 
 int main() {
     RBTree tree;
     int choice;
+    readFile(tree);
     
     do {
         cout << "Press: 1/2/3 to: \n" <<
@@ -29,7 +31,7 @@ int main() {
                     }
                     else {
                         if (size >= 1  &&  size <= 1000) {
-                            generateDB(tree);
+                            tree.generateDB(size);
                             cout << endl;
                         }
                         else {cout << "Written size is wrong\n\n";}
@@ -47,7 +49,8 @@ int main() {
                     else {
                         if (key <= 0  ||  key > 1000) {cout << "Key is out of range.\n\n";}
                         else {
-                            cout << "data: "; cin.ignore();
+                            cout << "data: ";
+                            cin.ignore();
                             getline(cin, data);
                             tree.insert(key, data);
                             cout << endl;
@@ -78,18 +81,25 @@ int main() {
             }
         }
     } while (true);
-    
-    /*
-    bst.insert(8, "8");
-    bst.insert(18, "18");
-    bst.insert(5, "5");
-    bst.insert(15, "15");
-    bst.insert(17, "17");
-    bst.insert(25, "25");
-    bst.insert(40, "40");
-    bst.insert(80, "80");
-    bst.deleteNode(25);
-    bst.deleteNode(17);
-    bst.deleteNode(17); */
     return 0;
 }
+
+void readFile(RBTree tree) {
+    ifstream fin (FILE_BD);
+    vector<string> oldFile;
+    while (!fin.eof()) {
+        oldFile.resize(0);
+        string str;
+        getline(fin, str);
+        if (!str.empty()) {
+            oldFile.push_back(str);
+            
+            int index = str.find(":");
+            int key = stoi(str.substr(0, index));
+            str = str.substr(index+1);
+            tree.insert(key, str);
+        }
+    }
+    fin.close();
+}
+

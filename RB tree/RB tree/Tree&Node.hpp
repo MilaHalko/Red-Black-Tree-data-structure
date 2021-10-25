@@ -22,7 +22,6 @@ class Node {
         this->parent = parent;
         this->right = right;
     };
-    
     friend class RBTree;
 };
 
@@ -40,9 +39,6 @@ class RBTree {
     void leftRotate(Node*);     //   Node which goes up..
     void rightRotate(Node*);    //.. should be an argument
     
-    // GENERATION functions
-    void generateDB();
-    
     // INSERT functions
     void checkTree(Node*);
     
@@ -59,9 +55,6 @@ public:
     RBTree(): root(nullptr) {}
     void insert(int, string);
     void deleteNode(int);
-    friend void generateDB(RBTree);
+    void generateDB(int);
+    void search(int);
 };
-
-void RBTree::generateDB() {
-    
-}
